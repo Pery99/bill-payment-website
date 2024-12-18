@@ -19,6 +19,7 @@ import {
   Phone,
   Database,
   X,
+  MenuIcon,
   Wallet,
   Settings,
   HelpCircle,
@@ -196,7 +197,7 @@ const Layout = ({ children }) => {
               variant="text"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             >
-              {isSidebarOpen ? <X /> : <Menu />}
+              {isSidebarOpen ? <X /> : <MenuIcon />}
             </Button>
           </div>
 

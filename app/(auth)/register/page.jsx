@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Card,
-  Input,
-  Checkbox,
-  Button,
-  Typography,
-} from "@material-tailwind/react";
+import { Card, Input, Button, Typography } from "@material-tailwind/react";
 import Link from "next/link";
 import { useState } from "react";
 import { auth } from "@/lib/firebase";
@@ -22,6 +16,7 @@ export default function Signupform() {
     name: "",
     email: "",
     password: "",
+    confirmPassword: "", // Added Confirm Password field
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -32,9 +27,33 @@ export default function Signupform() {
     setFormData({ ...formData, [name]: value });
   };
 
+  const validateForm = () => {
+    const { name, email, password, confirmPassword } = formData;
+    if (!name || !email || !password || !confirmPassword) {
+      setError("All fields are required.");
+      return false;
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return false;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return false;
+    }
+    setError(null);
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    if (!validateForm()) {
+      setLoading(false);
+      return;
+    }
+
     try {
       const { email, password } = formData;
       const userCredential = await createUserWithEmailAndPassword(
@@ -44,7 +63,7 @@ export default function Signupform() {
       );
       const user = userCredential.user;
       dispatch(login({ email: user.email, uid: user.uid }));
-      toast.success("Success");
+      toast.success("Registration successful!");
       setLoading(false);
       router.push("/");
     } catch (err) {
@@ -110,12 +129,27 @@ export default function Signupform() {
             value={formData.password}
             onChange={handleChange}
           />
+          <Typography variant="h6" color="blue-gray" className="-mb-3">
+            Confirm Password
+          </Typography>
+          <Input
+            type="password"
+            size="lg"
+            placeholder="********"
+            className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+            labelProps={{
+              className: "before:content-none after:content-none",
+            }}
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+          />
         </div>
-        {/* {error && (
+        {error && (
           <Typography color="red" className="text-sm mt-2 text-center">
             {error}
           </Typography>
-        )} */}
+        )}
         <Button
           disabled={loading}
           type="submit"
